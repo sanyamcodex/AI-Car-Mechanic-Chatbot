@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "echo 'Backend foundation ready'",
+    "dev": "node server.js",
+    "start": "node server.js",
     "build": "echo 'Build ok'"
   }
 }
