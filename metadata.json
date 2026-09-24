@@ -1,0 +1,7 @@
+{
+  "name": "AI Car Mechanic Chatbot",
+  "description": "Virtual senior mechanic chatbot for vehicle troubleshooting, diagnosis, and repair booking.",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "ai-car-mechanic",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'Backend foundation ready'",
+    "build": "echo 'Build ok'"
+  }
+}

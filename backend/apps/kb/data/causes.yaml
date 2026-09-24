@@ -1,0 +1,418 @@
+- key: worn_brake_pads
+  label: "Worn brake pads"
+  description: "Brake friction material is worn down to the acoustic wear indicators."
+  severity: 2
+  service: brake_service
+  symptoms:
+    brake_squeal: 0.95
+    brake_grinding: 0.65
+
+- key: warped_rotors
+  label: "Warped brake discs/rotors"
+  description: "Brake discs have uneven surface runout causing pulsation and vibration."
+  severity: 2
+  service: brake_service
+  symptoms:
+    steering_vibration: 0.70
+    brake_squeal: 0.30
+
+- key: worn_brake_rotors
+  label: "Severely worn brake rotors"
+  description: "Brake pad backing plates are grinding against gouged metal brake discs."
+  severity: 3
+  service: brake_service
+  symptoms:
+    brake_grinding: 0.90
+    brake_squeal: 0.40
+
+- key: air_in_brake_lines
+  label: "Air trapped in brake lines"
+  description: "Vapor or air bubbles inside hydraulic lines causing spongy pedal response."
+  severity: 3
+  service: brake_hydraulic_service
+  symptoms:
+    soft_brake_pedal: 0.90
+
+- key: failing_master_cylinder
+  label: "Failing brake master cylinder"
+  description: "Internal piston seals leaking hydraulic brake fluid past pressure chambers."
+  severity: 4
+  service: brake_hydraulic_service
+  symptoms:
+    soft_brake_pedal: 0.85
+
+- key: dead_battery
+  label: "Dead car battery"
+  description: "Battery voltage has dropped below 10.5V, failing to engage starter motor."
+  severity: 2
+  service: battery_service
+  symptoms:
+    engine_no_crank: 0.95
+    headlights_dim: 0.70
+
+- key: weak_battery
+  label: "Weak or degraded car battery"
+  description: "Battery has high internal resistance and cannot sustain cold cranking amps."
+  severity: 2
+  service: battery_service
+  symptoms:
+    slow_crank_click: 0.95
+    headlights_dim: 0.60
+    battery_drain: 0.50
+
+- key: parasitic_draw
+  label: "Parasitic battery drain"
+  description: "Faulty electrical accessory or relay drawing current while vehicle is off."
+  severity: 2
+  service: electrical_diagnostic_service
+  symptoms:
+    battery_drain: 0.90
+    engine_no_crank: 0.35
+
+- key: failing_alternator
+  label: "Failing alternator"
+  description: "Alternator diode pack or stator winding failure not recharging battery."
+  severity: 3
+  service: alternator_starter_service
+  symptoms:
+    battery_light: 0.90
+    headlights_dim: 0.75
+    engine_stalls: 0.40
+
+- key: faulty_starter_motor
+  label: "Faulty starter motor solenoid"
+  description: "Starter solenoid contacts burned or motor armature brushes seized."
+  severity: 2
+  service: alternator_starter_service
+  symptoms:
+    engine_no_crank: 0.60
+    slow_crank_click: 0.50
+
+- key: low_coolant
+  label: "Low engine coolant level"
+  description: "Insufficient coolant volume in radiator and reservoir causing thermal spikes."
+  severity: 3
+  service: cooling_system_service
+  symptoms:
+    overheating: 0.95
+    coolant_leak: 0.80
+
+- key: stuck_thermostat
+  label: "Thermostat valve stuck closed"
+  description: "Bimetallic thermostat cannot open, blocking coolant flow to radiator."
+  severity: 3
+  service: cooling_system_service
+  symptoms:
+    overheating: 0.85
+
+- key: radiator_leak
+  label: "Radiator core puncture or leak"
+  description: "Damaged radiator tubes leaking pressurized coolant onto road surface."
+  severity: 3
+  service: cooling_system_service
+  symptoms:
+    coolant_leak: 0.90
+    overheating: 0.55
+
+- key: failed_head_gasket
+  label: "Blown cylinder head gasket"
+  description: "Combustion chamber seal compromised allowing coolant to burn into cylinders."
+  severity: 4
+  service: engine_head_gasket_service
+  symptoms:
+    white_smoke: 0.95
+    overheating: 0.70
+    coolant_leak: 0.35
+
+- key: worn_valve_seals
+  label: "Worn valve stem seals or piston rings"
+  description: "Engine oil leaking into combustion chambers and burning during power stroke."
+  severity: 3
+  service: engine_head_gasket_service
+  symptoms:
+    blue_smoke: 0.90
+    oil_leak: 0.30
+
+- key: leaking_oil_pan_gasket
+  label: "Leaking oil sump or valve cover gasket"
+  description: "Degraded rubber/cork gasket allowing oil seepage down engine block."
+  severity: 2
+  service: engine_oil_service
+  symptoms:
+    oil_leak: 0.90
+    burning_smell: 0.40
+
+- key: critically_low_oil
+  label: "Critically low engine oil pressure"
+  description: "Oil starvation due to severe leak or worn oil pump gears."
+  severity: 4
+  service: engine_oil_service
+  symptoms:
+    oil_pressure_light: 0.95
+    oil_leak: 0.50
+
+- key: low_refrigerant
+  label: "Low AC refrigerant gas level"
+  description: "Micro-leak in O-rings or condenser has depleted R134a refrigerant charge."
+  severity: 1
+  service: ac_cooling_service
+  symptoms:
+    ac_not_cooling: 0.95
+
+- key: failed_ac_compressor
+  label: "Failed AC compressor clutch"
+  description: "Magnetic compressor clutch failing to engage or seized internal vanes."
+  severity: 2
+  service: ac_compressor_service
+  symptoms:
+    ac_not_cooling: 0.80
+    burning_smell: 0.35
+
+- key: clogged_cabin_filter
+  label: "Heavily clogged cabin filter"
+  description: "Dust and debris restricting blower motor airflow through cooling coil."
+  severity: 1
+  service: ac_cooling_service
+  symptoms:
+    ac_not_cooling: 0.45
+
+- key: puncture
+  label: "Tire puncture from road debris"
+  description: "Nail, screw, or road hazard penetrated tire casing resulting in air loss."
+  severity: 2
+  service: tire_puncture_service
+  symptoms:
+    tire_flat: 0.95
+    pulling_to_side: 0.40
+
+- key: wheel_imbalance
+  label: "Unbalanced road wheels"
+  description: "Centrifugal weight imbalance causing high speed steering wheel shaking."
+  severity: 1
+  service: wheel_alignment_service
+  symptoms:
+    vibration_speed: 0.90
+    steering_vibration: 0.75
+
+- key: misaligned_wheels
+  label: "Incorrect front wheel alignment"
+  description: "Toe or camber out of specification causing vehicle drift and edge wear."
+  severity: 2
+  service: wheel_alignment_service
+  symptoms:
+    pulling_to_side: 0.90
+    uneven_tire_wear: 0.85
+
+- key: worn_control_arm_bushings
+  label: "Worn control arm suspension bushings"
+  description: "Cracked rubber bushings allowing metal-on-metal knocking over bumps."
+  severity: 2
+  service: suspension_service
+  symptoms:
+    clunk_bumps: 0.90
+    steering_vibration: 0.40
+
+- key: blown_strut_shock_absorber
+  label: "Leaking strut or shock absorber"
+  description: "Damaged hydraulic seal causing shock oil loss and bouncy ride."
+  severity: 2
+  service: suspension_service
+  symptoms:
+    clunk_bumps: 0.75
+    uneven_tire_wear: 0.50
+
+- key: faulty_power_steering_pump
+  label: "Failing power steering pump or motor"
+  description: "Loss of hydraulic assistance or electric EPS motor assist failure."
+  severity: 3
+  service: steering_rack_service
+  symptoms:
+    steering_hard: 0.90
+
+- key: damaged_steering_rack
+  label: "Damaged steering rack or tie-rods"
+  description: "Excess play or binding teeth in rack and pinion steering gearbox."
+  severity: 3
+  service: steering_rack_service
+  symptoms:
+    steering_hard: 0.60
+    pulling_to_side: 0.50
+    clunk_bumps: 0.40
+
+- key: worn_clutch_friction_plate
+  label: "Worn clutch friction disc"
+  description: "Friction material glazed or worn below rivets, causing engine RPM slipping."
+  severity: 3
+  service: clutch_overhaul_service
+  symptoms:
+    clutch_slipping: 0.95
+    burning_smell: 0.50
+    low_power: 0.45
+
+- key: worn_clutch_release_bearing
+  label: "Defective clutch release bearing"
+  description: "Dry or broken throwout bearing making clutch pedal stiff and gears hard."
+  severity: 2
+  service: clutch_overhaul_service
+  symptoms:
+    hard_gear_shift: 0.85
+    clutch_slipping: 0.30
+
+- key: low_transmission_fluid
+  label: "Low or degraded gear oil"
+  description: "Insufficient lubrication causing synchronizer rings to balk during gear shifts."
+  severity: 2
+  service: transmission_service
+  symptoms:
+    hard_gear_shift: 0.80
+
+- key: faulty_spark_plugs
+  label: "Fouled or worn spark plugs"
+  description: "Worn electrode gap causing cylinder misfire, rough idle, and unburned fuel."
+  severity: 2
+  service: ignition_tuneup_service
+  symptoms:
+    rough_idle: 0.90
+    engine_cranks_no_start: 0.50
+    low_power: 0.60
+    poor_mileage: 0.55
+
+- key: bad_ignition_coils
+  label: "Failing ignition coil pack"
+  description: "Insulation breakdown under load leading to single-cylinder misfire."
+  severity: 2
+  service: ignition_tuneup_service
+  symptoms:
+    check_engine_light: 0.80
+    rough_idle: 0.70
+    low_power: 0.65
+
+- key: clogged_fuel_filter
+  label: "Clogged fuel filter or weak pump"
+  description: "Fuel starvation starving engine under high load or acceleration."
+  severity: 2
+  service: fuel_system_service
+  symptoms:
+    low_power: 0.85
+    engine_cranks_no_start: 0.60
+    poor_mileage: 0.50
+
+- key: leaking_fuel_injector
+  label: "Leaking fuel injector O-ring"
+  description: "Pressurized atomized petrol leaking on engine intake manifold."
+  severity: 4
+  service: fuel_system_service
+  symptoms:
+    fuel_smell: 0.95
+    rough_idle: 0.40
+    poor_mileage: 0.45
+
+- key: rich_fuel_mixture
+  label: "Rich air-fuel mixture / faulty MAF"
+  description: "Excess fuel injection causing unburned carbon soot from tailpipe."
+  severity: 2
+  service: fuel_system_service
+  symptoms:
+    black_smoke: 0.90
+    poor_mileage: 0.75
+    fuel_smell: 0.40
+
+- key: faulty_o2_sensor
+  label: "Faulty oxygen sensor (O2)"
+  description: "Sluggish lambda sensor misreporting exhaust oxygen to engine computer."
+  severity: 2
+  service: exhaust_emission_service
+  symptoms:
+    check_engine_light: 0.85
+    poor_mileage: 0.80
+
+- key: clogged_catalytic_converter
+  label: "Restricted catalytic converter"
+  description: "Melted ceramic honeycomb restricting exhaust gas flow."
+  severity: 3
+  service: exhaust_emission_service
+  symptoms:
+    low_power: 0.80
+    burning_smell: 0.45
+    check_engine_light: 0.60
+
+- key: faulty_abs_wheel_speed_sensor
+  label: "Damaged ABS wheel speed sensor"
+  description: "Magnetic encoder or sensor wire broken causing ABS brake warning."
+  severity: 2
+  service: electrical_diagnostic_service
+  symptoms:
+    abs_light: 0.95
+
+- key: bad_throttle_body
+  label: "Carbonized electronic throttle body"
+  description: "Gum and carbon preventing butterfly valve from maintaining stable idle."
+  severity: 2
+  service: ignition_tuneup_service
+  symptoms:
+    rough_idle: 0.80
+    engine_stalls: 0.85
+
+- key: fuel_pump_failure
+  label: "In-tank fuel pump electrical failure"
+  description: "Electric motor open circuit preventing fuel pressure buildup."
+  severity: 3
+  service: fuel_system_service
+  symptoms:
+    engine_cranks_no_start: 0.90
+    engine_stalls: 0.60
+
+- key: alternator_serpentine_belt_slip
+  label: "Slipping alternator serpentine belt"
+  description: "Loose or oil-contaminated accessory belt causing screech and poor charging."
+  severity: 2
+  service: alternator_starter_service
+  symptoms:
+    headlights_dim: 0.65
+    battery_light: 0.70
+    burning_smell: 0.60
+
+- key: burnt_headlight_bulb_fuse
+  label: "Blown headlight relay or bulb filament"
+  description: "Filament burned out or relay contacts charred causing dim beam."
+  severity: 1
+  service: headlight_lighting_service
+  symptoms:
+    headlights_dim: 0.85
+
+- key: severe_tire_tread_separation
+  label: "Internal tire tread belt separation"
+  description: "Steel belt delamination causing severe wobble and localized ballooning."
+  severity: 3
+  service: tire_puncture_service
+  symptoms:
+    uneven_tire_wear: 0.80
+    vibration_speed: 0.70
+    steering_vibration: 0.65
+
+- key: melted_electrical_harness
+  label: "Short circuited electrical wiring harness"
+  description: "Wire insulation rubbed against engine block causing smoke and short."
+  severity: 4
+  service: electrical_diagnostic_service
+  symptoms:
+    burning_smell: 0.90
+    battery_drain: 0.40
+
+- key: worn_sway_bar_bushings
+  label: "Worn sway bar bushings and end-links"
+  description: "Loose stabilizer bar links knocking when chassis twists over uneven surface."
+  severity: 1
+  service: suspension_service
+  symptoms:
+    clunk_bumps: 0.85
+
+- key: crankshaft_position_sensor_failure
+  label: "Faulty crankshaft position sensor"
+  description: "Thermal failure of crank angle sensor cutting off ignition pulse."
+  severity: 3
+  service: electrical_diagnostic_service
+  symptoms:
+    engine_stalls: 0.90
+    engine_cranks_no_start: 0.80
+    check_engine_light: 0.65
