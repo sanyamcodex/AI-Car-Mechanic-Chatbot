@@ -20,6 +20,8 @@ from backend.engine.templates import (
     format_booking_confirmation,
 )
 
+MEDIA_FAILED_TEXT = "I couldn't process the media file right now. Could you describe what you're seeing or hearing?"
+
 
 def _compute_available_slots(now: datetime) -> list[dict[str, str]]:
     slots: list[dict[str, str]] = []
@@ -89,22 +91,29 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
 
     # 3. Media analysis event
     media_messages: list[dict[str, Any]] = []
-    if event.media:
-        state.media_analyses += len(event.media)
-        for item in event.media:
-            syms = item.get("symptom_keys", [])
-            for s in syms:
-                if s in kb.symptoms and s not in state.symptoms:
-                    state.symptoms.append(s)
-            obs = item.get("observations")
-            if obs:
-                media_messages.append({
-                    "kind": "text",
-                    "text": MEDIA_ANALYZED_TEXT.format(observations=obs),
-                    "meta": {},
-                })
-        if state.state == "INTAKE" and state.symptoms:
-            state.state = "CLARIFYING"
+    if event.media is not None:
+        if len(event.media) == 0:
+            media_messages.append({
+                "kind": "text",
+                "text": MEDIA_FAILED_TEXT,
+                "meta": {},
+            })
+        else:
+            state.media_analyses += len(event.media)
+            for item in event.media:
+                syms = item.get("symptom_keys", [])
+                for s in syms:
+                    if s in kb.symptoms and s not in state.symptoms:
+                        state.symptoms.append(s)
+                obs = item.get("observations")
+                if obs:
+                    media_messages.append({
+                        "kind": "text",
+                        "text": MEDIA_ANALYZED_TEXT.format(observations=obs),
+                        "meta": {},
+                    })
+            if state.state == "INTAKE" and state.symptoms:
+                state.state = "CLARIFYING"
 
     # 4. AI symptoms fallback result
     if event.ai_symptoms is not None:
@@ -142,7 +151,6 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
             if sym in kb.symptoms:
                 state.symptoms.append(sym)
                 state.state = "CLARIFYING"
-                # Fall through to clarifying logic below
             else:
                 messages = media_messages + [{"kind": "text", "text": GREETING_TEXT, "meta": {}}]
                 return StepResult(state=state, messages=messages, replies=STARTER_CHIPS)
@@ -159,7 +167,6 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
                 messages = media_messages + [{"kind": "text", "text": OFF_TOPIC_TEXT, "meta": {}}]
                 return StepResult(state=state, messages=messages, replies=STARTER_CHIPS)
 
-            # Score >= 1: Extract symptoms & vehicle
             extracted = extract_symptoms(text, kb)
             parsed_v = extract_vehicle(text, kb)
             if parsed_v:
@@ -175,7 +182,7 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
                     state.ai_extract_calls += 1
                     return StepResult(
                         state=state,
-                        messages=[],
+                        messages=media_messages,
                         replies=[],
                         actions={"type": "ai_extract", "text": text},
                     )
@@ -189,7 +196,6 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
 
     # ------------------ CLARIFYING STATE ------------------
     if state.state == "CLARIFYING":
-        # Vehicle query check
         if not state.vehicle.get("make") and not state.vehicle_asked:
             state.vehicle_asked = True
             messages = media_messages + [{
@@ -201,26 +207,20 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
             replies = [{"id": "skip", "label": "Skip", "question_id": "vehicle"}]
             return StepResult(state=state, messages=messages, replies=replies)
 
-        # Handle answer to vehicle question if pending
         if choice.get("question_id") == "vehicle":
-            # User answered vehicle prompt
             if choice.get("option_id") != "skip" and text:
                 parsed_v = extract_vehicle(text, kb)
                 if parsed_v:
                     state.vehicle.update(parsed_v)
-            # Proceed into diagnostic loop
         elif state.vehicle_asked and not state.pending_q and not state.answers and text:
-            # Check if text provided the vehicle
             parsed_v = extract_vehicle(text, kb)
             if parsed_v:
                 state.vehicle.update(parsed_v)
-            # Also extract any symptoms
             new_syms = extract_symptoms(text, kb)
             for s in new_syms:
                 if s not in state.symptoms:
                     state.symptoms.append(s)
 
-        # Handle pending question answer
         if state.pending_q:
             q_key = state.pending_q
             curr_q = kb.questions.get(q_key)
@@ -232,7 +232,6 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
                 state.pending_q = None
             elif text:
                 gate_res = gate(text, kb)
-                # If off-topic in clarifying state
                 if gate_res["score"] == 0 and gate_res["intent"] not in {"yes", "no", "idk"}:
                     messages = media_messages + [{
                         "kind": "text",
@@ -245,7 +244,6 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
                     ] + [{"id": "unknown", "label": "Not sure", "question_id": q_key}]
                     return StepResult(state=state, messages=messages, replies=replies)
 
-                # Check options match
                 matched_opt_id: str | None = None
                 normalized_text = text.lower()
 
@@ -263,7 +261,6 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
                         if matched_opt_id:
                             break
 
-                # Also check yes/no match
                 if not matched_opt_id:
                     if gate_res["intent"] == "yes":
                         for opt in (curr_q.options if curr_q else []):
@@ -276,7 +273,6 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
                                 matched_opt_id = opt.id
                                 break
 
-                # Extract and merge any additional symptoms mentioned in free text
                 new_syms = extract_symptoms(text, kb)
                 for s in new_syms:
                     if s not in state.symptoms:
@@ -287,7 +283,6 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
                         state.answers[q_key] = matched_opt_id
                     state.pending_q = None
                 else:
-                    # Unmatched answer -> re-ask with UNMATCHED_REPLY_TEXT
                     messages = media_messages + [{
                         "kind": "text",
                         "text": f"{UNMATCHED_REPLY_TEXT}\n\n{curr_q.text if curr_q else ''}".strip(),
@@ -299,7 +294,6 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
                     ] + [{"id": "unknown", "label": "Not sure", "question_id": q_key}]
                     return StepResult(state=state, messages=messages, replies=replies)
 
-        # Rank and check conclusiveness
         ranked = rank(kb, state)
         next_q = next_question(kb, state, ranked)
         conclusive = is_conclusive(state, ranked, next_q)
@@ -385,7 +379,6 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
             messages = [{"kind": "text", "text": FRIENDLY_CLOSE_TEXT, "meta": {}}]
             return StepResult(state=state, messages=messages, replies=STARTER_CHIPS)
 
-        # Check if text describes a new symptom
         new_syms = extract_symptoms(text, kb)
         if new_syms:
             state.state = "CLARIFYING"
@@ -396,7 +389,6 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
             state.pending_field = None
             return step(kb, state, Event(), now)
 
-        # Off-topic or unrecognized text
         messages = [{
             "kind": "text",
             "text": f"{OFF_TOPIC_TEXT}\n\nWould you like to book a certified mechanic for this service?",
@@ -418,11 +410,9 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
             messages = [{"kind": "text", "text": FRIENDLY_CLOSE_TEXT, "meta": {}}]
             return StepResult(state=state, messages=messages, replies=STARTER_CHIPS)
 
-        # 1. Customer Name
         if state.pending_field == "customer_name":
             if text and 2 <= len(text.strip()) <= 60:
                 state.draft["customer_name"] = text.strip()
-                # Check if phone was also entered in text
                 p = parse_phone(text)
                 if p:
                     state.draft["phone"] = p
@@ -456,7 +446,6 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
                 }]
                 return StepResult(state=state, messages=messages, replies=[])
 
-        # 2. Phone
         if state.pending_field == "phone":
             p = parse_phone(text)
             if p:
@@ -483,7 +472,6 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
                 }]
                 return StepResult(state=state, messages=messages, replies=[])
 
-        # 3. City
         if state.pending_field == "city":
             city_val = choice.get("option_id") if choice.get("question_id") == "city" else text
             if city_val and 2 <= len(city_val.strip()) <= 40:
@@ -504,7 +492,6 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
                 }]
                 return StepResult(state=state, messages=messages, replies=[])
 
-        # 4. Scheduled At
         if state.pending_field == "scheduled_at":
             chosen_slot: str | None = None
             if choice.get("question_id") == "slot":
@@ -516,7 +503,6 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
 
             if chosen_slot:
                 state.draft["scheduled_at"] = chosen_slot
-                # All fields filled -> create booking action
                 return StepResult(
                     state=state,
                     messages=[],
@@ -532,10 +518,4 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
                 }]
                 return StepResult(state=state, messages=messages, replies=slots)
 
-    # Fallback
     return StepResult(state=state, messages=[], replies=STARTER_CHIPS)
-
-
-def detect_intent(text: str) -> str:
-    from backend.engine.domain_gate import detect_intent as _di
-    return _di(text)
