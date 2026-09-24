@@ -147,7 +147,7 @@
           "name": "Upload Media File",
           "request": {
             "method": "POST",
-            "url": "{{baseUrl}}/api/uploads/",
+            "url": "{{baseUrl}}/api/upload/",
             "body": {
               "mode": "formdata",
               "formdata": [
@@ -164,7 +164,7 @@
           "name": "Get Upload Status",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/uploads/{{upload_id}}/"
+            "url": "{{baseUrl}}/api/upload/{{upload_id}}/"
           }
         }
       ]

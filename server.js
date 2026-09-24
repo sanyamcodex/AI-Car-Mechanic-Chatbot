@@ -1,3 +1,18 @@
+/**
+ * ============================================================================
+ * [ISOLATED DEMO / DEV ENVIRONMENT HARNESS]
+ * ============================================================================
+ * NOTICE: This file is strictly a standalone dev server harness for the AI Studio
+ * container runtime on port 3000.
+ *
+ * THIS IS NOT THE PRODUCTION APPLICATION.
+ * - Production Frontend: Located in `/frontend` (Next.js 14 App Router, TypeScript, Tailwind)
+ *   Deployment target: Vercel (Root Directory: frontend)
+ * - Production Backend: Located in `/backend` (Django REST Framework, SQLite/PostgreSQL)
+ *   Deployment target: Render / Docker (Build: ./start.sh)
+ * ============================================================================
+ */
+
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -288,6 +303,28 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Upload endpoint (canonical /api/upload/ and alias /api/uploads/)
+  if ((pathname === '/api/upload/' || pathname === '/api/upload' || pathname === '/api/uploads/' || pathname === '/api/uploads') && req.method === 'POST') {
+    const dummyId = 'up-' + Math.random().toString(36).substring(2, 10);
+    res.writeHead(201, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      id: dummyId,
+      original_name: 'uploaded_media.jpg',
+      mime_type: 'image/jpeg',
+      size_bytes: 102400,
+      kind: 'image',
+      file_url: 'https://placehold.co/600x400/png?text=Engine+Inspection',
+      analysis_status: 'completed',
+      analysis_result: {
+        observations: 'Visual inspection completed.',
+        symptom_keys: ['brake_squeal'],
+        confidence: 0.88
+      },
+      created_at: new Date().toISOString()
+    }));
+    return;
+  }
+
   // Chat API endpoint
   if ((pathname === '/api/chat/' || pathname === '/api/chat') && req.method === 'POST') {
     let body = '';
@@ -331,13 +368,14 @@ const server = http.createServer((req, res) => {
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-    header { background-color: var(--card); border-bottom: 1px solid var(--card-border); padding: 0.9rem 1.5rem; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+    .sandbox-banner { background: rgba(249, 115, 22, 0.12); border-bottom: 1px solid rgba(249, 115, 22, 0.25); padding: 5px 12px; font-size: 11px; text-align: center; color: #fb923c; font-weight: 500; }
+    header { background-color: var(--card); border-bottom: 1px solid var(--card-border); padding: 0.8rem 1.5rem; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
     .brand { display: flex; align-items: center; gap: 0.75rem; font-weight: 700; font-size: 1.1rem; }
     .brand-icon { width: 32px; height: 32px; border-radius: 8px; background: rgba(249, 115, 22, 0.15); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
     .badge-live { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.6rem; border-radius: 9999px; background: rgba(16, 185, 129, 0.15); color: var(--success); font-size: 0.75rem; font-weight: 600; }
     .dot { width: 7px; height: 7px; border-radius: 50%; background-color: var(--success); }
     
-    .chat-container { flex: 1; display: flex; flex-direction: column; max-width: 860px; margin: 0 auto; width: 100%; height: calc(100vh - 60px); overflow: hidden; }
+    .chat-container { flex: 1; display: flex; flex-direction: column; max-width: 860px; margin: 0 auto; width: 100%; height: calc(100vh - 85px); overflow: hidden; }
     .messages-area { flex: 1; overflow-y: auto; padding: 1.25rem 1rem; display: flex; flex-direction: column; gap: 1rem; }
     
     .msg-group { display: flex; flex-direction: column; gap: 0.25rem; max-width: 80%; }
@@ -364,13 +402,17 @@ const server = http.createServer((req, res) => {
   </style>
 </head>
 <body>
+  <div class="sandbox-banner">
+    ⚠️ <strong>SANDBOX HARNESS</strong> &bull; Production Next.js app in <code>frontend/</code> (deploy to Vercel) &bull; Django API in <code>backend/</code> (deploy to Render)
+  </div>
+
   <header>
     <div class="brand">
       <div class="brand-icon">🔧</div>
       <span>Car Mechanic Assistant</span>
     </div>
     <div class="badge-live">
-      <span class="dot"></span> Active Engine &bull; Port 3000
+      <span class="dot"></span> Preview Port 3000
     </div>
   </header>
 
@@ -497,5 +539,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, HOST, () => {
-  console.log(`AI Car Mechanic server listening on http://${HOST}:${PORT}`);
+  console.log(`[HARNESS] AI Car Mechanic dev sandbox running on http://${HOST}:${PORT}`);
 });

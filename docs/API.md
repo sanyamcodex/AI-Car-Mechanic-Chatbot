@@ -136,8 +136,8 @@ Retrieves stored diagnosis record, ranking breakdown, and recommended repair pac
 
 ## 5. Media Uploads
 
-### `POST /api/uploads/`
-Multipart file upload (`file`). Accepts images (JPEG, PNG, WebP up to 5MB), audio (MP3, WAV, WebM up to 10MB), and video (MP4, QuickTime up to 25MB).
+### `POST /api/upload/`
+Multipart file upload (`file`). Accepts images (JPEG, PNG, WebP up to 5MB), audio (MP3, WAV, WebM up to 10MB), and video (MP4, QuickTime up to 25MB). Note: `/api/uploads/` is also supported as a backwards-compatible alias.
 
 **Response `201 Created`**:
 ```json
@@ -154,8 +154,8 @@ Multipart file upload (`file`). Accepts images (JPEG, PNG, WebP up to 5MB), audi
 }
 ```
 
-### `GET /api/uploads/{id}/`
-Returns upload status and cached AI inspection observations.
+### `GET /api/upload/{id}/`
+Returns upload status and cached AI inspection observations. Note: `/api/uploads/{id}/` is supported as alias.
 
 ---
 

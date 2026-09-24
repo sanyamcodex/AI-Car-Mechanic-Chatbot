@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Message, SuggestedReply, DiagnosisInfo, BookingInfo } from '../lib/types';
-import { sendChat, getConversation } from '../lib/api';
+import { Message, SuggestedReply, DiagnosisInfo, BookingInfo, Conversation } from '../lib/types';
+import { sendChat, getConversation, getConversations } from '../lib/api';
 import { MessageBubble } from './MessageBubble';
 import { Composer } from './Composer';
 import { BookingModal } from './BookingModal';
@@ -27,6 +27,9 @@ export const ChatApp: React.FC<ChatAppProps> = ({ initialConversationId }) => {
   const [activeDiagnosis, setActiveDiagnosis] = useState<DiagnosisInfo | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [historyList, setHistoryList] = useState<Conversation[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -41,8 +44,8 @@ export const ChatApp: React.FC<ChatAppProps> = ({ initialConversationId }) => {
   useEffect(() => {
     if (conversationId) {
       loadHistory(conversationId);
+      saveConversationIdToStorage(conversationId);
     } else {
-      // Welcome message
       setMessages([
         {
           id: 'welcome',
@@ -53,8 +56,29 @@ export const ChatApp: React.FC<ChatAppProps> = ({ initialConversationId }) => {
         },
       ]);
       setSuggestedReplies(DEFAULT_STARTER_REPLIES);
+      setActiveDiagnosis(null);
     }
   }, [conversationId]);
+
+  const saveConversationIdToStorage = (id: string) => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('car_mechanic_conv_ids') || '[]');
+      if (!stored.includes(id)) {
+        stored.unshift(id);
+        localStorage.setItem('car_mechanic_conv_ids', JSON.stringify(stored.slice(0, 20)));
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  const getStoredConversationIds = (): string[] => {
+    try {
+      return JSON.parse(localStorage.getItem('car_mechanic_conv_ids') || '[]');
+    } catch {
+      return [];
+    }
+  };
 
   const loadHistory = async (id: string) => {
     try {
@@ -62,14 +86,12 @@ export const ChatApp: React.FC<ChatAppProps> = ({ initialConversationId }) => {
       if (conv.messages) {
         setMessages(conv.messages);
 
-        // Restore diagnosis state from history if present
         for (const msg of conv.messages) {
           if (msg.meta?.diagnosis) {
             setActiveDiagnosis(msg.meta.diagnosis);
           }
         }
 
-        // Restore suggested replies from last bot message or conversation
         const lastBot = [...conv.messages].reverse().find((m) => m.sender === 'bot');
         if (lastBot?.meta?.suggested_replies) {
           setSuggestedReplies(lastBot.meta.suggested_replies);
@@ -82,6 +104,35 @@ export const ChatApp: React.FC<ChatAppProps> = ({ initialConversationId }) => {
     }
   };
 
+  const openHistoryDrawer = async () => {
+    setIsHistoryOpen(true);
+    setLoadingHistory(true);
+    try {
+      const ids = getStoredConversationIds();
+      const convs = await getConversations(ids.length > 0 ? ids : undefined);
+      setHistoryList(convs);
+    } catch (err) {
+      console.error('Failed to load history list:', err);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  const startNewChat = () => {
+    setConversationId(null);
+    setActiveDiagnosis(null);
+    setMessages([
+      {
+        id: 'welcome-' + Date.now(),
+        sender: 'bot',
+        kind: 'text',
+        text: "Hello! I'm your virtual mechanic assistant. What seems to be the problem with your vehicle? Describe your symptoms, upload engine audio or photos, or pick one of the common issues below.",
+        created_at: new Date().toISOString(),
+      },
+    ]);
+    setSuggestedReplies(DEFAULT_STARTER_REPLIES);
+  };
+
   const handleSendTurn = async (
     text?: string,
     choice?: { question_id: string; option_id: string; label?: string } | null,
@@ -89,7 +140,6 @@ export const ChatApp: React.FC<ChatAppProps> = ({ initialConversationId }) => {
   ) => {
     if (isProcessing) return;
 
-    // Optimistic user bubble
     const userMsgText = text || choice?.label || choice?.option_id || '';
     const tempUserMsgId = 'usr-' + Date.now();
     const clientMsgId = 'cm-' + Math.random().toString(36).substring(2, 10);
@@ -119,6 +169,7 @@ export const ChatApp: React.FC<ChatAppProps> = ({ initialConversationId }) => {
 
       if (!conversationId && res.conversation_id) {
         setConversationId(res.conversation_id);
+        saveConversationIdToStorage(res.conversation_id);
       }
 
       if (res.diagnosis) {
@@ -145,7 +196,6 @@ export const ChatApp: React.FC<ChatAppProps> = ({ initialConversationId }) => {
   };
 
   const handleBookingSuccess = (booking: BookingInfo) => {
-    // Append confirmed booking card to messages
     const bookingMessage: Message = {
       id: 'book-' + Date.now(),
       sender: 'bot',
@@ -162,7 +212,7 @@ export const ChatApp: React.FC<ChatAppProps> = ({ initialConversationId }) => {
   };
 
   return (
-    <div className="flex flex-col h-full w-full bg-slate-950 text-slate-100 overflow-hidden">
+    <div className="flex flex-col h-full w-full bg-slate-950 text-slate-100 overflow-hidden relative">
       {/* Header */}
       <header className="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-slate-900 border-b border-slate-800 z-10">
         <div className="flex items-center gap-3">
@@ -176,10 +226,23 @@ export const ChatApp: React.FC<ChatAppProps> = ({ initialConversationId }) => {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-950/80 text-emerald-400 border border-emerald-700/50">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Mechanics Online
-          </span>
+          <button
+            type="button"
+            onClick={openHistoryDrawer}
+            className="px-3 py-1.5 rounded-xl text-xs font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer"
+          >
+            <span>📜</span>
+            <span className="hidden sm:inline">History</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={startNewChat}
+            className="px-3 py-1.5 rounded-xl text-xs font-medium text-white bg-orange-600 hover:bg-orange-500 transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+          >
+            <span>➕</span>
+            <span className="hidden sm:inline">New Chat</span>
+          </button>
         </div>
       </header>
 
@@ -193,7 +256,6 @@ export const ChatApp: React.FC<ChatAppProps> = ({ initialConversationId }) => {
           />
         ))}
 
-        {/* Loading Spinner */}
         {isProcessing && (
           <div className="flex items-center gap-2 self-start p-3 bg-slate-900/80 border border-slate-800 rounded-2xl rounded-tl-none w-fit">
             <span className="w-2 h-2 rounded-full bg-orange-400 animate-bounce" />
@@ -202,7 +264,6 @@ export const ChatApp: React.FC<ChatAppProps> = ({ initialConversationId }) => {
           </div>
         )}
 
-        {/* Suggested Replies Quick Chips */}
         {!isProcessing && suggestedReplies.length > 0 && (
           <div className="flex flex-wrap gap-2 pt-2 pb-1">
             {suggestedReplies.map((reply, idx) => (
@@ -245,6 +306,82 @@ export const ChatApp: React.FC<ChatAppProps> = ({ initialConversationId }) => {
         conversationId={conversationId}
         onSuccess={handleBookingSuccess}
       />
+
+      {/* History Drawer Modal */}
+      {isHistoryOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md p-5 shadow-2xl relative max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <span>📜</span> Diagnostic History
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsHistoryOpen(false)}
+                className="text-slate-400 hover:text-white transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-2">
+              {loadingHistory ? (
+                <div className="p-6 text-center text-xs text-slate-400">Loading sessions...</div>
+              ) : historyList.length === 0 ? (
+                <div className="p-6 text-center text-xs text-slate-400">
+                  No previous sessions found. Start a new diagnosis!
+                </div>
+              ) : (
+                historyList.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => {
+                      setConversationId(c.id);
+                      setIsHistoryOpen(false);
+                    }}
+                    className={`w-full text-left p-3 rounded-xl border transition-all cursor-pointer ${
+                      c.id === conversationId
+                        ? 'bg-orange-950/40 border-orange-500 text-white'
+                        : 'bg-slate-800/70 border-slate-700/60 hover:bg-slate-800 text-slate-200'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-semibold text-xs truncate max-w-[220px]">
+                        {c.title || 'Diagnostic Session'}
+                      </h4>
+                      <span className="text-[10px] font-mono text-slate-400 uppercase">
+                        {c.status}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between mt-1 text-[11px] text-slate-400">
+                      <span>{c.messages ? `${c.messages.length} messages` : 'Session active'}</span>
+                      <span>
+                        {new Date(c.updated_at || c.created_at).toLocaleDateString(undefined, {
+                          month: 'short',
+                          day: 'numeric',
+                        })}
+                      </span>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+
+            <div className="pt-3 border-t border-slate-800 mt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsHistoryOpen(false)}
+                className="px-4 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
