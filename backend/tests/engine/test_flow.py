@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta, timezone
 from apps.kb.loader import load_kb, clear_kb_cache
-from backend.engine.types import ConvState, Event
-from backend.engine.flow import step
-from backend.engine.templates import OFF_TOPIC_TEXT, UNMATCHED_REPLY_TEXT
-from backend.tests.engine.fixtures import get_fixture_kb
+from engine.types import ConvState, Event
+from engine.flow import step
+from engine.templates import OFF_TOPIC_TEXT, UNMATCHED_REPLY_TEXT
+from tests.engine.fixtures import get_fixture_kb
 
 IST = timezone(timedelta(hours=5, minutes=30))
 NOW = datetime(2026, 9, 24, 10, 0, tzinfo=IST)
@@ -170,7 +170,7 @@ def test_determinism():
 def test_golden_scenarios_on_real_kb():
     clear_kb_cache()
     kb = load_kb()
-    from backend.engine.scoring import rank
+    from engine.scoring import rank
 
     golden_cases = {
         "brake_squeal": "worn_brake_pads",

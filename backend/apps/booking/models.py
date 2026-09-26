@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.db.models import Q
 
 
 class Booking(models.Model):
@@ -38,6 +39,7 @@ class Booking(models.Model):
         related_name='bookings',
     )
     scheduled_at = models.DateTimeField(db_index=True)
+    notes = models.CharField(max_length=300, blank=True, default="")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='confirmed')
     idempotency_key = models.CharField(max_length=64, unique=True, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -48,7 +50,8 @@ class Booking(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['mechanic', 'scheduled_at'],
-                name='unique_mechanic_slot',
+                condition=Q(status='confirmed'),
+                name='unique_mechanic_confirmed_slot',
             )
         ]
 

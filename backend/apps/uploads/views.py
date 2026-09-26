@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
+from apps.chat.models import Conversation
 from apps.uploads.models import Upload
 from apps.uploads.validators import validate_and_process_upload
 from apps.uploads.serializers import UploadSerializer, UploadCreateSerializer
@@ -38,7 +39,13 @@ class UploadView(APIView):
 
         content, mime_type, kind, size_bytes, sha256 = validate_and_process_upload(uploaded_file)
 
+        conv_id = request.data.get('conversation_id')
+        conversation = None
+        if conv_id:
+            conversation, _ = Conversation.objects.get_or_create(id=conv_id)
+
         upload = Upload(
+            conversation=conversation,
             original_name=uploaded_file.name or 'upload',
             mime_type=mime_type,
             size_bytes=size_bytes,
@@ -47,7 +54,10 @@ class UploadView(APIView):
         )
         upload.file.save(uploaded_file.name or 'upload', ContentFile(content), save=True)
 
-        return Response(UploadSerializer(upload).data, status=status.HTTP_201_CREATED)
+        return Response(
+            UploadSerializer(upload, context={'request': request}).data,
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class UploadDetailView(APIView):

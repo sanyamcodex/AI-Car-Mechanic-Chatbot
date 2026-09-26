@@ -8,6 +8,7 @@ All endpoints return JSON responses. Errors follow standard structure:
   "error": {
     "code": "error_code",
     "message": "Human readable explanation",
+    "fields": {},
     "details": {}
   }
 }
@@ -59,7 +60,7 @@ Returns system usage metrics, conversation counts, and AI telemetry.
 ## 2. Interactive Chat
 
 ### `POST /api/chat/`
-Submits a conversational turn, choice selection, or uploaded media attachments.
+Submits a conversational turn, choice selection, or uploaded media attachments. The response `messages` array contains **bot replies only** — clients render their own user message locally. Idempotent per `client_msg_id` (replays return the same bot messages).
 
 **Request Body**:
 ```json
@@ -137,7 +138,7 @@ Retrieves stored diagnosis record, ranking breakdown, and recommended repair pac
 ## 5. Media Uploads
 
 ### `POST /api/upload/`
-Multipart file upload (`file`). Accepts images (JPEG, PNG, WebP up to 5MB), audio (MP3, WAV, WebM up to 10MB), and video (MP4, QuickTime up to 25MB). Note: `/api/uploads/` is also supported as a backwards-compatible alias.
+Multipart file upload (`file`). Accepts images (JPEG, PNG, WebP up to 5MB), audio (MP3, WAV, WebM up to 10MB), and video (MP4, WebM, QuickTime up to 20MB). Note: `/api/uploads/` is also supported as a backwards-compatible alias.
 
 **Response `201 Created`**:
 ```json

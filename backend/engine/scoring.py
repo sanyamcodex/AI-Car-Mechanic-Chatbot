@@ -2,7 +2,7 @@ import hashlib
 import json
 from typing import Any
 from apps.kb.loader import KB, QuestionD
-from backend.engine.types import ConvState, Ranked, DiagnosisData
+from engine.types import ConvState, Ranked, DiagnosisData
 
 
 def rank(kb: KB, state: ConvState) -> list[Ranked]:

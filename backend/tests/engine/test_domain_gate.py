@@ -1,5 +1,5 @@
-from backend.engine.domain_gate import gate, detect_intent
-from backend.tests.engine.fixtures import get_fixture_kb
+from engine.domain_gate import gate, detect_intent
+from tests.engine.fixtures import get_fixture_kb
 
 
 def test_domain_gate_phrases():

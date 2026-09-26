@@ -9,7 +9,7 @@ from apps.core.errors import ApiException
 
 IMAGE_MAX_SIZE = 5 * 1024 * 1024     # 5 MB
 AUDIO_MAX_SIZE = 10 * 1024 * 1024    # 10 MB
-VIDEO_MAX_SIZE = 25 * 1024 * 1024    # 25 MB
+VIDEO_MAX_SIZE = 20 * 1024 * 1024    # 20 MB
 
 ALLOWED_IMAGE_MIMES = {
     'image/jpeg': 'image',
@@ -28,6 +28,7 @@ ALLOWED_AUDIO_MIMES = {
     'audio/m4a': 'audio',
     'audio/x-m4a': 'audio',
     'audio/aac': 'audio',
+    'audio/webm': 'audio',
 }
 
 ALLOWED_VIDEO_MIMES = {
@@ -65,7 +66,7 @@ def _verify_magic_bytes(header: bytes, mime_type: str) -> bool:
         return header.startswith(b'OggS')
 
     # 7. WebM
-    if mime_type == 'video/webm':
+    if mime_type in ('video/webm', 'audio/webm'):
         return header.startswith(b'\x1a\x45\xdf\xa3')
 
     # 8. MP4 / M4A / MOV
@@ -126,6 +127,12 @@ def validate_and_process_upload(uploaded_file: UploadedFile) -> Tuple[bytes, str
             kind = 'audio'
         elif content_type in ALLOWED_VIDEO_MIMES:
             kind = 'video'
+        elif content_type.startswith('audio/') and ('webm' in content_type or 'ogg' in content_type):
+            kind = 'audio'
+            normalized_mime = content_type
+        elif content_type.startswith('video/') and ('webm' in content_type or 'ogg' in content_type):
+            kind = 'video'
+            normalized_mime = content_type
 
     if not kind:
         raise ApiException(
@@ -158,7 +165,7 @@ def validate_and_process_upload(uploaded_file: UploadedFile) -> Tuple[bytes, str
     elif kind == 'video' and size_bytes > VIDEO_MAX_SIZE:
         raise ApiException(
             code="payload_too_large",
-            message=f"Video size exceeds the 25MB limit ({size_bytes / (1024*1024):.1f}MB).",
+            message=f"Video size exceeds the 20MB limit ({size_bytes / (1024*1024):.1f}MB).",
             status_code=413,
         )
 
@@ -169,14 +176,13 @@ def validate_and_process_upload(uploaded_file: UploadedFile) -> Tuple[bytes, str
         try:
             image = Image.open(io.BytesIO(raw_content))
             w, h = image.size
-            if w > 1600 or h > 1600:
-                image.thumbnail((1600, 1600), Image.Resampling.LANCZOS)
+            if w > 1024 or h > 1024:
+                image.thumbnail((1024, 1024), Image.Resampling.LANCZOS)
                 out_buffer = io.BytesIO()
-                # Maintain RGB format for JPEG
                 if image.mode in ('RGBA', 'P') and normalized_mime in ('image/jpeg', 'image/jpg'):
                     image = image.convert('RGB')
                 save_format = 'PNG' if normalized_mime == 'image/png' else ('WEBP' if normalized_mime == 'image/webp' else 'JPEG')
-                image.save(out_buffer, format=save_format, quality=85, optimize=True)
+                image.save(out_buffer, format=save_format, quality=80, optimize=True)
                 final_content = out_buffer.getvalue()
                 size_bytes = len(final_content)
         except Exception:

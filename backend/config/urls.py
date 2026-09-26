@@ -14,3 +14,6 @@ urlpatterns = [
     path('api/', include('apps.booking.urls')),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
+
+handler404 = 'apps.core.errors.handler404'
+handler500 = 'apps.core.errors.handler500'

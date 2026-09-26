@@ -95,7 +95,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
 
       onSuccess(booking);
       onClose();
-    } catch (err: any) {
+    } catch (err) {
       console.error('Booking submission error:', err);
       if (err instanceof ApiError && err.status === 409) {
         setErrorMessage('The chosen slot is currently booked. Please choose an alternative:');
@@ -103,7 +103,11 @@ export const BookingModal: React.FC<BookingModalProps> = ({
           setAlternatives(err.details.alternatives);
         }
       } else {
-        setErrorMessage(err.message || 'Failed to complete booking. Please try again.');
+        setErrorMessage(
+          err instanceof ApiError
+            ? err.message
+            : 'Failed to complete booking. Please try again.'
+        );
       }
     } finally {
       setLoading(false);

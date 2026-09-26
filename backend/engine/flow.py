@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta, time
 from typing import Any
 from apps.kb.loader import KB
-from backend.engine.types import ConvState, Event, StepResult
-from backend.engine.domain_gate import gate
-from backend.engine.extract import extract_symptoms, extract_vehicle, parse_phone, parse_when
-from backend.engine.scoring import rank, next_question, is_conclusive, build_diagnosis
-from backend.engine.safety import red_flags, format_safety_prefix
-from backend.engine.templates import (
+from engine.types import ConvState, Event, StepResult
+from engine.domain_gate import gate, detect_intent
+from engine.extract import extract_symptoms, extract_vehicle, parse_phone, parse_when
+from engine.scoring import rank, next_question, is_conclusive, build_diagnosis
+from engine.safety import red_flags, format_safety_prefix
+from engine.templates import (
     STARTER_CHIPS,
     OFF_TOPIC_TEXT,
     GREETING_TEXT,
@@ -196,7 +196,7 @@ def step(kb: KB, state: ConvState, event: Event, now: datetime) -> StepResult:
 
     # ------------------ CLARIFYING STATE ------------------
     if state.state == "CLARIFYING":
-        if not state.vehicle.get("make") and not state.vehicle_asked:
+        if not state.vehicle.get("make") and not state.vehicle_asked and not state.pending_q:
             state.vehicle_asked = True
             messages = media_messages + [{
                 "kind": "text",

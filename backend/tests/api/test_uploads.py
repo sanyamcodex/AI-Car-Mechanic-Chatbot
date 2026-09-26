@@ -100,54 +100,51 @@ def test_analyze_with_mocked_gemini_and_cache_hit():
         "confidence": 0.90,
     }
 
-    with patch('apps.core.ai_client.analyze_media', wraps=None) as mock_ai:
-        from apps.core.ai_client import analyze_media as real_analyze_media
+    # 1. First chat turn with upload
+    with patch('apps.core.ai_client._get_client') as mock_client_factory:
+        mock_client = MagicMock()
+        mock_client_factory.return_value = mock_client
 
-        # 1. First chat turn with upload
-        with patch('apps.core.ai_client._get_client') as mock_client_factory:
-            mock_client = MagicMock()
-            mock_client_factory.return_value = mock_client
+        mock_response = MagicMock()
+        mock_response.text = '{"observations": "Deep grooving visible on rotor", "symptom_keys": ["brake_squeal"], "confidence": 0.9}'
+        mock_response.usage_metadata.prompt_token_count = 100
+        mock_response.usage_metadata.candidates_token_count = 30
+        mock_client.models.generate_content.return_value = mock_response
 
-            mock_response = MagicMock()
-            mock_response.text = '{"observations": "Deep grooving visible on rotor", "symptom_keys": ["brake_squeal"], "confidence": 0.9}'
-            mock_response.usage_metadata.prompt_token_count = 100
-            mock_response.usage_metadata.candidates_token_count = 30
-            mock_client.models.generate_content.return_value = mock_response
+        with override_settings(AI_ENABLED=True, GEMINI_API_KEY="test-fake-key"):
+            res1 = client.post(chat_url, {
+                "text": "please look at this image",
+                "upload_ids": [upload_id],
+                "client_msg_id": "upload-turn-1",
+            }, format='json')
 
-            with override_settings(AI_ENABLED=True, GEMINI_API_KEY="test-fake-key"):
-                res1 = client.post(chat_url, {
-                    "text": "please look at this image",
-                    "upload_ids": [upload_id],
-                    "client_msg_id": "upload-turn-1",
-                }, format='json')
+            assert res1.status_code == 200
+            d1 = res1.json()
+            conv_id = d1["conversation_id"]
 
-                assert res1.status_code == 200
-                d1 = res1.json()
-                conv_id = d1["conversation_id"]
+            # Media analysis observation text is present
+            assert any("rotor" in m["text"] for m in d1["messages"])
+            assert mock_client.models.generate_content.call_count == 1
 
-                # Media analysis observation text is present
-                assert any("rotor" in m["text"] for m in d1["messages"])
-                assert mock_client.models.generate_content.call_count == 1
+            # AICache was created
+            upload_obj = Upload.objects.get(id=upload_id)
+            assert AICache.objects.filter(key=f"media:{upload_obj.sha256}").exists()
 
-                # AICache was created
-                upload_obj = Upload.objects.get(id=upload_id)
-                assert AICache.objects.filter(key=f"media:{upload_obj.sha256}").exists()
+            # 2. Second turn with same upload / sha256 -> must hit cache (0 Gemini calls)
+            mock_client.models.generate_content.reset_mock()
+            res2 = client.post(chat_url, {
+                "conversation_id": conv_id,
+                "text": "checking again",
+                "upload_ids": [upload_id],
+                "client_msg_id": "upload-turn-2",
+            }, format='json')
 
-                # 2. Second turn with same upload / sha256 -> must hit cache (0 Gemini calls)
-                mock_client.models.generate_content.reset_mock()
-                res2 = client.post(chat_url, {
-                    "conversation_id": conv_id,
-                    "text": "checking again",
-                    "upload_ids": [upload_id],
-                    "client_msg_id": "upload-turn-2",
-                }, format='json')
+            assert res2.status_code == 200
+            assert mock_client.models.generate_content.call_count == 0
 
-                assert res2.status_code == 200
-                assert mock_client.models.generate_content.call_count == 0
-
-                # Cache hit was logged
-                cache_hit_logs = AIUsageLog.objects.filter(cache_hit=True)
-                assert cache_hit_logs.exists()
+            # Cache hit was logged
+            cache_hit_logs = AIUsageLog.objects.filter(cache_hit=True)
+            assert cache_hit_logs.exists()
 
 
 @pytest.mark.django_db

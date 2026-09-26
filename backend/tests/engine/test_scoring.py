@@ -1,6 +1,6 @@
-from backend.engine.types import ConvState
-from backend.engine.scoring import rank, next_question, is_conclusive, build_diagnosis
-from backend.tests.engine.fixtures import get_fixture_kb
+from engine.types import ConvState
+from engine.scoring import rank, next_question, is_conclusive, build_diagnosis
+from tests.engine.fixtures import get_fixture_kb
 
 
 def test_ranking_and_determinism():

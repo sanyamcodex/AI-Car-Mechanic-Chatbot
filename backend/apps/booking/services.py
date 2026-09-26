@@ -10,9 +10,9 @@ from apps.kb.models import Mechanic, ServiceCatalog
 from apps.chat.models import Conversation
 from apps.diagnosis.models import Diagnosis
 from apps.core.errors import ApiException
-from backend.engine.extract import parse_phone
-from apps.chat.services import apply_event
-from backend.engine.types import Event
+from engine.extract import parse_phone
+from apps.chat.services import apply_event, persist_bot_messages
+from engine.types import Event
 
 
 def find_next_available_slots(city: str, base_time: datetime, count: int = 3) -> list[str]:
@@ -54,7 +54,10 @@ def create_booking(
     scheduled_at: str | datetime,
     service_key: str | None = None,
     conversation_id: UUID | str | None = None,
+    diagnosis_id: UUID | str | None = None,
     idempotency_key: str | None = None,
+    skip_chat_persist: bool = False,
+    notes: str = "",
 ) -> Booking:
     now = timezone.now()
 
@@ -157,12 +160,20 @@ def create_booking(
     conv_obj: Conversation | None = None
     diag_obj: Diagnosis | None = None
 
+    if diagnosis_id:
+        diag_obj = Diagnosis.objects.select_related('top_cause__service').filter(id=diagnosis_id).first()
+        if diag_obj and not service_obj:
+            service_obj = diag_obj.top_cause.service
+        if diag_obj and not conversation_id:
+            conversation_id = diag_obj.conversation_id
+
     if conversation_id:
         try:
             conv_obj = Conversation.objects.get(id=conversation_id)
-            diag_id = conv_obj.slots.get("last_diagnosis_id")
-            if diag_id:
-                diag_obj = Diagnosis.objects.filter(id=diag_id).first()
+            if not diag_obj:
+                diag_id = conv_obj.slots.get("last_diagnosis_id")
+                if diag_id:
+                    diag_obj = Diagnosis.objects.filter(id=diag_id).first()
             if not diag_obj:
                 diag_obj = conv_obj.diagnoses.order_by('-created_at').first()
 
@@ -210,6 +221,7 @@ def create_booking(
                 service=service_obj,
                 mechanic=chosen_mechanic,
                 scheduled_at=parsed_dt,
+                notes=(notes or "")[:300],
                 status='confirmed',
                 idempotency_key=idempotency_key or None,
             )
@@ -223,16 +235,17 @@ def create_booking(
             details={"alternatives": alternatives},
         )
 
-    # 8. Update conversation state if conversation_id provided
-    if conv_obj:
+    if conv_obj and not skip_chat_persist:
         booking_data = {
             "id": str(booking.id),
             "service": {"name": service_obj.name},
             "mechanic": {"name": chosen_mechanic.name},
             "scheduled_at": parsed_dt.strftime("%b %d at %I:%M %p"),
         }
-        apply_event(conv_obj, Event(booking_created=booking_data))
+        step_result, _ = apply_event(conv_obj, Event(booking_created=booking_data))
+        persist_bot_messages(conv_obj, step_result)
         conv_obj.status = 'completed'
-        conv_obj.save(update_fields=['status', 'slots'])
+        conv_obj.slots = step_result.state.to_dict()
+        conv_obj.save(update_fields=['status', 'slots', 'updated_at'])
 
     return booking

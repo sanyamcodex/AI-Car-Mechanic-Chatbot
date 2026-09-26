@@ -3,7 +3,7 @@ from typing import Any
 from apps.kb.loader import KB
 
 RE_GREETING = re.compile(r"^(hi|hello|hey|namaste|good (morning|afternoon|evening))\b", re.IGNORECASE)
-RE_YES = re.compile(r"^(yes|yeah|yep|sure|ok(ay)?|please|book( it)?|haan|ha)\b", re.IGNORECASE)
+RE_YES = re.compile(r"^(yes|yeah|yep|sure|ok(ay)?|please|book it|haanji|haan|ha)\b", re.IGNORECASE)
 RE_NO = re.compile(r"^(no|nope|nah|not now|later|cancel|nahi)\b", re.IGNORECASE)
 RE_IDK = re.compile(r"^(not sure|don'?t know|idk|no idea)", re.IGNORECASE)
 RE_RESTART = re.compile(r"(new issue|start over|another problem)", re.IGNORECASE)
@@ -17,10 +17,10 @@ def detect_intent(text: str) -> str:
         return "restart"
     if RE_YES.search(cleaned):
         return "yes"
-    if RE_NO.search(cleaned):
-        return "no"
     if RE_IDK.search(cleaned):
         return "idk"
+    if RE_NO.search(cleaned):
+        return "no"
     return "other"
 
 

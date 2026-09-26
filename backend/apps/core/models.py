@@ -29,7 +29,7 @@ class AIUsageLog(models.Model):
 
 
 class AICache(models.Model):
-    key = models.CharField(max_length=64, primary_key=True)  # sha256 hash
+    key = models.CharField(max_length=96, primary_key=True)
     purpose = models.CharField(max_length=32)
     response = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)

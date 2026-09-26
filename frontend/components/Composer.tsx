@@ -86,11 +86,12 @@ export const Composer: React.FC<ComposerProps> = ({ onSendMessage, disabled = fa
             : d
         )
       );
-    } catch (err: any) {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Upload failed';
       setDrafts((prev) =>
         prev.map((d) =>
           d.localId === localId
-            ? { ...d, error: err.message || 'Upload failed' }
+            ? { ...d, error: message }
             : d
         )
       );

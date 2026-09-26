@@ -49,6 +49,16 @@ class Message(models.Model):
 
     class Meta:
         ordering = ['created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['conversation', 'client_msg_id'],
+                condition=models.Q(client_msg_id__isnull=False),
+                name='uniq_conversation_client_msg_id',
+            ),
+        ]
+        indexes = [
+            models.Index(fields=['conversation', 'created_at']),
+        ]
 
     def __str__(self) -> str:
         return f"{self.sender}: {self.text[:30]}"

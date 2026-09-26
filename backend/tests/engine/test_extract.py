@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
-from backend.engine.extract import extract_symptoms, extract_vehicle, parse_phone, parse_when
-from backend.tests.engine.fixtures import get_fixture_kb
+from engine.extract import extract_symptoms, extract_vehicle, parse_phone, parse_when
+from tests.engine.fixtures import get_fixture_kb
 
 IST = timezone(timedelta(hours=5, minutes=30))
 

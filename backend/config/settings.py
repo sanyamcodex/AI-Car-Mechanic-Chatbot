@@ -17,6 +17,7 @@ allowed_hosts_env = os.environ.get('ALLOWED_HOSTS', '*')
 ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_env.split(',') if h.strip()]
 
 INSTALLED_APPS = [
+    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -137,7 +138,11 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
     r.strip() for r in cors_regex_env.split(',') if r.strip()
 ]
 
-CORS_ALLOW_ALL_ORIGINS = DEBUG and not CORS_ALLOWED_ORIGINS
+from corsheaders.defaults import default_headers
+
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'idempotency-key',
+]
 
 csrf_env = os.environ.get(
     'CSRF_TRUSTED_ORIGINS',

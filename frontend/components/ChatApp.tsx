@@ -178,7 +178,7 @@ export const ChatApp: React.FC<ChatAppProps> = ({ initialConversationId }) => {
 
       setMessages((prev) => [...prev, ...(res.messages || [])]);
       setSuggestedReplies(res.suggested_replies || []);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Chat error:', err);
       setMessages((prev) => [
         ...prev,

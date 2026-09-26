@@ -17,6 +17,13 @@ class Upload(models.Model):
     )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    conversation = models.ForeignKey(
+        'chat.Conversation',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name='uploads',
+    )
     message = models.ForeignKey(
         'chat.Message',
         null=True,

@@ -1,7 +1,7 @@
 import logging
 from typing import Any
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from rest_framework import status
 from rest_framework.exceptions import (
     APIException,
@@ -67,6 +67,20 @@ def make_error_response(
     return Response(
         format_error_dict(code=code, message=message, fields=fields, details=details),
         status=status_code,
+    )
+
+
+def handler404(request, exception=None):
+    return JsonResponse(
+        format_error_dict(code='not_found', message='The requested resource was not found.'),
+        status=status.HTTP_404_NOT_FOUND,
+    )
+
+
+def handler500(request):
+    return JsonResponse(
+        format_error_dict(code='server_error', message='An unexpected error occurred. Please try again later.'),
+        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
     )
 
 

@@ -7,11 +7,11 @@ from apps.booking.models import Booking
 from apps.booking.serializers import BookingSerializer, BookingCreateSerializer
 from apps.booking.services import create_booking
 from apps.core.errors import ApiException
-from apps.core.throttles import ChatRateThrottle, AnonRateThrottle
+from apps.core.throttles import BookingRateThrottle, AnonRateThrottle
 
 
 class BookingView(APIView):
-    throttle_classes = [ChatRateThrottle]
+    throttle_classes = [BookingRateThrottle]
 
     @extend_schema(
         summary="Create Mechanic Booking",
@@ -42,15 +42,16 @@ class BookingView(APIView):
             or request.headers.get('idempotency-key')
             or data.get('idempotency_key')
         )
-
         booking = create_booking(
             customer_name=data['customer_name'],
             phone=data['phone'],
             city=data['city'],
             scheduled_at=data['scheduled_at'],
-            service_key=data.get('service_key'),
+            service_key=data.get('service_key') or None,
             conversation_id=data.get('conversation_id'),
+            diagnosis_id=data.get('diagnosis_id'),
             idempotency_key=idempotency_key,
+            notes=data.get('notes') or "",
         )
 
         return Response(BookingSerializer(booking).data, status=status.HTTP_201_CREATED)

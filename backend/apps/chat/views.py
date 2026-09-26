@@ -77,7 +77,7 @@ class ConversationListView(APIView):
                     pass
             qs = qs.filter(id__in=valid_ids)
 
-        serializer = ConversationSerializer(qs, many=True)
+        serializer = ConversationSerializer(qs[:20], many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

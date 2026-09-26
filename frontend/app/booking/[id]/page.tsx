@@ -28,7 +28,7 @@ export default function BookingDetailPage() {
     try {
       const data = await getBooking(id);
       setBooking(data);
-    } catch (err: any) {
+    } catch (err) {
       if (err instanceof ApiError) {
         setErrorStatus(err.status);
         setErrorMessage(err.message);

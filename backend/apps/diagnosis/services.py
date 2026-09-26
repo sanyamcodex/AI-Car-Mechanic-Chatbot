@@ -1,47 +1,12 @@
 from typing import Any
 from django.db import transaction
-from rest_framework import serializers
 
 from apps.kb.models import Cause
 from apps.kb.loader import load_kb
 from apps.diagnosis.models import Diagnosis
 from apps.core.errors import ApiException
-from backend.engine.types import ConvState, DiagnosisData
-from backend.engine.scoring import rank, next_question, is_conclusive, build_diagnosis
-
-
-class DiagnosisSerializer(serializers.ModelSerializer):
-    top_cause_key = serializers.CharField(source='top_cause.key', read_only=True)
-    top_cause_label = serializers.CharField(source='top_cause.label', read_only=True)
-    service = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Diagnosis
-        fields = [
-            'id',
-            'conversation_id',
-            'top_cause_key',
-            'top_cause_label',
-            'confidence',
-            'severity',
-            'ranked',
-            'evidence_hash',
-            'safety_alert',
-            'service',
-            'created_at',
-        ]
-
-    def get_service(self, obj: Diagnosis) -> dict[str, Any]:
-        svc = obj.top_cause.service
-        return {
-            'key': svc.key,
-            'name': svc.name,
-            'description': svc.description,
-            'price_min': svc.price_min,
-            'price_max': svc.price_max,
-            'duration_hours': svc.duration_hours,
-            'currency': 'INR',
-        }
+from engine.types import ConvState, DiagnosisData
+from engine.scoring import rank, next_question, is_conclusive, build_diagnosis
 
 
 def save_diagnosis(conversation: Any, diag_data: DiagnosisData) -> Diagnosis:

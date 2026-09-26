@@ -20,6 +20,7 @@ class BookingSerializer(serializers.ModelSerializer):
             'status',
             'conversation_id',
             'diagnosis_id',
+            'notes',
             'created_at',
             'updated_at',
         ]
@@ -51,6 +52,8 @@ class BookingCreateSerializer(serializers.Serializer):
     phone = serializers.CharField(max_length=20, required=True)
     city = serializers.CharField(max_length=64, required=True)
     scheduled_at = serializers.DateTimeField(required=True)
-    service_key = serializers.CharField(required=False, allow_blank=True, default=None)
+    service_key = serializers.CharField(required=False, allow_blank=True, allow_null=True, default=None)
     conversation_id = serializers.UUIDField(required=False, allow_null=True, default=None)
+    diagnosis_id = serializers.UUIDField(required=False, allow_null=True, default=None)
     idempotency_key = serializers.CharField(required=False, allow_blank=True, max_length=64, default=None)
+    notes = serializers.CharField(required=False, allow_blank=True, max_length=300, default="")

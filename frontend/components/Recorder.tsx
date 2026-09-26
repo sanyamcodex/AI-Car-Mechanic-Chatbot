@@ -78,10 +78,11 @@ export const Recorder: React.FC<RecorderProps> = ({ onRecorded, onCancel }) => {
           return prev + 1;
         });
       }, 1000);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Audio capture error:', err);
+      const denied = err instanceof DOMException && err.name === 'NotAllowedError';
       setErrorMessage(
-        err.name === 'NotAllowedError'
+        denied
           ? 'Microphone permission denied.'
           : 'Could not access microphone.'
       );
