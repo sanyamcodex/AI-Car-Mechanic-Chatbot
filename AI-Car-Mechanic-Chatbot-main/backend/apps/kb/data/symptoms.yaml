@@ -1,0 +1,237 @@
+- key: engine_no_crank
+  label: "Engine does not crank or turn over"
+  category: electrical
+  keywords: ["no crank", "won't crank", "doesn't crank", "won't start", "silent key", "no sound when starting"]
+  red_flag: false
+  safety_msg: ""
+
+- key: engine_cranks_no_start
+  label: "Engine cranks but will not fire up"
+  category: electrical
+  keywords: ["cranks but won't start", "engine turns over but won't start", "continuous cranking", "keeps cranking"]
+  red_flag: false
+  safety_msg: ""
+
+- key: slow_crank_click
+  label: "Slow cranking or clicking sound on start"
+  category: electrical
+  keywords: ["slow crank", "clicking sound", "clicking noise", "struggling to crank", "clicks when starting"]
+  red_flag: false
+  safety_msg: ""
+
+- key: engine_stalls
+  label: "Engine cuts off or stalls"
+  category: engine
+  keywords: ["engine stalls", "car dies", "engine cuts off", "engine shut down while driving", "stalling at idle"]
+  red_flag: false
+  safety_msg: ""
+
+- key: rough_idle
+  label: "Rough or fluctuating idle"
+  category: engine
+  keywords: ["rough idle", "engine shaking at stop", "rpm jumping", "unstable rpm", "engine shuddering"]
+  red_flag: false
+  safety_msg: ""
+
+- key: low_power
+  label: "Sluggish acceleration and loss of power"
+  category: engine
+  keywords: ["low power", "loss of power", "sluggish pickup", "car not accelerating", "poor pickup", "no pickup"]
+  red_flag: false
+  safety_msg: ""
+
+- key: poor_mileage
+  label: "Significant drop in fuel economy"
+  category: engine
+  keywords: ["poor mileage", "low mileage", "high fuel consumption", "drinks petrol", "bad fuel average"]
+  red_flag: false
+  safety_msg: ""
+
+- key: overheating
+  label: "Engine overheating / high temperature gauge"
+  category: cooling
+  keywords: ["overheating", "engine hot", "temperature high", "temp needle in red", "steam from hood"]
+  red_flag: true
+  safety_msg: "Stop the engine immediately and let it cool. Continuing to drive while overheating will cause catastrophic engine seizure."
+
+- key: coolant_leak
+  label: "Coolant puddle or green/orange fluid leak"
+  category: cooling
+  keywords: ["coolant leak", "green liquid under car", "radiator leak", "antifreeze leaking", "water puddle under car"]
+  red_flag: false
+  safety_msg: ""
+
+- key: oil_leak
+  label: "Engine oil dripping or brown puddle under car"
+  category: engine
+  keywords: ["oil leak", "oil puddle", "engine oil dripping", "black oil on ground", "leaking engine oil"]
+  red_flag: false
+  safety_msg: ""
+
+- key: blue_smoke
+  label: "Bluish smoke from exhaust pipe"
+  category: exhaust
+  keywords: ["blue smoke", "bluish exhaust", "burning oil exhaust", "smoke with oil smell"]
+  red_flag: false
+  safety_msg: ""
+
+- key: white_smoke
+  label: "Dense white smoke billowing from exhaust"
+  category: exhaust
+  keywords: ["white smoke", "thick white smoke", "steam from exhaust", "white exhaust fumes"]
+  red_flag: true
+  safety_msg: "Stop driving. Dense sweet-smelling white smoke indicates coolant entering engine combustion chambers."
+
+- key: black_smoke
+  label: "Dark black smoke from exhaust pipe"
+  category: exhaust
+  keywords: ["black smoke", "dark exhaust", "black soot from tailpipe", "sooty smoke"]
+  red_flag: false
+  safety_msg: ""
+
+- key: check_engine_light
+  label: "Check engine warning light illuminated"
+  category: electrical
+  keywords: ["check engine light", "cel light", "engine symbol on dashboard", "malfunction indicator", "mil light"]
+  red_flag: false
+  safety_msg: ""
+
+- key: battery_light
+  label: "Battery charging warning indicator on dash"
+  category: electrical
+  keywords: ["battery light", "alternator light", "battery icon on", "charging system warning"]
+  red_flag: false
+  safety_msg: ""
+
+- key: oil_pressure_light
+  label: "Low engine oil pressure warning light"
+  category: engine
+  keywords: ["oil pressure light", "oil can light", "low oil pressure warning", "red oil lamp"]
+  red_flag: true
+  safety_msg: "Turn off the engine immediately. Driving with no oil pressure causes permanent bearing and crankshaft destruction."
+
+- key: abs_light
+  label: "ABS anti-lock braking system light on"
+  category: brakes
+  keywords: ["abs light", "anti-lock brake light", "abs warning", "wheel lock warning"]
+  red_flag: false
+  safety_msg: ""
+
+- key: brake_squeal
+  label: "High pitched squealing sound when braking"
+  category: brakes
+  keywords: ["brake squeal", "squealing brakes", "brakes screeching", "high pitch brake sound", "squeak when braking"]
+  red_flag: false
+  safety_msg: ""
+
+- key: brake_grinding
+  label: "Harsh metallic grinding noise on braking"
+  category: brakes
+  keywords: ["brake grinding", "metal on metal brake", "grinding brakes", "scraping noise when braking"]
+  red_flag: false
+  safety_msg: ""
+
+- key: soft_brake_pedal
+  label: "Spongy brake pedal sinking to floor"
+  category: brakes
+  keywords: ["soft brake pedal", "brake pedal sinks", "spongy brakes", "no brake pressure", "pedal goes to floor"]
+  red_flag: true
+  safety_msg: "Do not drive. A soft brake pedal indicates critical brake hydraulic failure. Tow the vehicle to a service bay."
+
+- key: steering_vibration
+  label: "Steering wheel shaking or vibration"
+  category: steering
+  keywords: ["steering vibration", "steering wheel shaking", "steering wobbles", "shaky steering"]
+  red_flag: false
+  safety_msg: ""
+
+- key: vibration_speed
+  label: "Body and wheel vibration at high speeds"
+  category: tires
+  keywords: ["vibration at speed", "car shaking at 80", "highway vibration", "wobble at highway speeds"]
+  red_flag: false
+  safety_msg: ""
+
+- key: pulling_to_side
+  label: "Car drifts or pulls to one side while driving"
+  category: steering
+  keywords: ["pulling to one side", "car drifts left", "car pulls right", "alignment issue", "steering pulls"]
+  red_flag: false
+  safety_msg: ""
+
+- key: steering_hard
+  label: "Heavy or stiff power steering resistance"
+  category: steering
+  keywords: ["steering hard", "heavy steering", "stiff steering wheel", "power steering failure", "hard to turn wheel"]
+  red_flag: true
+  safety_msg: "Do not drive at high speeds. Sudden loss of steering assistance poses severe loss-of-control hazards."
+
+- key: clunk_bumps
+  label: "Clunking or thudding noise over bumps"
+  category: suspension
+  keywords: ["clunk over bumps", "thud over potholes", "suspension knock", "rattling suspension", "clunking sound"]
+  red_flag: false
+  safety_msg: ""
+
+- key: ac_not_cooling
+  label: "Air conditioner blowing warm or room-temp air"
+  category: ac
+  keywords: ["ac not cooling", "ac blowing warm", "no cool air from vents", "car ac not cold", "ac warm air"]
+  red_flag: false
+  safety_msg: ""
+
+- key: clutch_slipping
+  label: "Engine revs climb without speed increase"
+  category: transmission
+  keywords: ["clutch slipping", "rpm rises car won't accelerate", "clutch slip", "engine screams no speed"]
+  red_flag: false
+  safety_msg: ""
+
+- key: hard_gear_shift
+  label: "Gear lever hard to engage or grinding gears"
+  category: transmission
+  keywords: ["hard gear shift", "gear stuck", "difficult to change gears", "grinding when shifting gears"]
+  red_flag: false
+  safety_msg: ""
+
+- key: tire_flat
+  label: "Deflated or completely flat tire"
+  category: tires
+  keywords: ["flat tire", "tire puncture", "punctured tire", "tire pressure low", "flat wheel"]
+  red_flag: false
+  safety_msg: ""
+
+- key: uneven_tire_wear
+  label: "Tire tread worn prematurely on inside/outside"
+  category: tires
+  keywords: ["uneven tire wear", "tires wearing out on edge", "inner tread bald", "feathering tires"]
+  red_flag: false
+  safety_msg: ""
+
+- key: burning_smell
+  label: "Pungent acrid burning rubber or plastic smell"
+  category: electrical
+  keywords: ["burning smell", "smell of burning plastic", "burning rubber smell", "acrid smoke smell in cabin"]
+  red_flag: true
+  safety_msg: "Pull over and turn off the ignition. An active burning smell suggests an electrical short or major component friction."
+
+- key: fuel_smell
+  label: "Strong raw petrol or diesel odor"
+  category: fuel
+  keywords: ["fuel smell", "petrol smell", "diesel odor in cabin", "smelling raw fuel", "gasoline smell"]
+  red_flag: true
+  safety_msg: "Do not drive or operate electrical accessories. A strong fuel smell indicates a hazardous leak with severe fire risk."
+
+- key: battery_drain
+  label: "Battery goes flat overnight repeatedly"
+  category: electrical
+  keywords: ["battery drain", "parasitic drain", "battery dies overnight", "battery discharge", "dead in morning"]
+  red_flag: false
+  safety_msg: ""
+
+- key: headlights_dim
+  label: "Flickering or excessively dim headlights"
+  category: electrical
+  keywords: ["headlights dim", "dim lights", "headlights flicker with revs", "weak headlights"]
+  red_flag: false
+  safety_msg: ""

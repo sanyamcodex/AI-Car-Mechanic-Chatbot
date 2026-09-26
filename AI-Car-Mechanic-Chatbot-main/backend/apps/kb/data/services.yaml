@@ -1,0 +1,139 @@
+- key: battery_service
+  name: "Battery replacement & electrical check"
+  description: "Complete battery health testing, terminal cleaning, and replacement with warranty."
+  price_min: 3500
+  price_max: 7500
+  duration_hours: 1.0
+
+- key: alternator_starter_service
+  name: "Alternator & starter motor overhaul"
+  description: "Diagnose and repair charging system, starter solenoid, and alternator pulley."
+  price_min: 2500
+  price_max: 8500
+  duration_hours: 2.5
+
+- key: brake_service
+  name: "Brake pad & disc service"
+  description: "Inspection, front and rear brake pad replacement, and brake rotor skim/replacement."
+  price_min: 1500
+  price_max: 6000
+  duration_hours: 2.0
+
+- key: brake_hydraulic_service
+  name: "Brake hydraulic & bleeding service"
+  description: "Brake master cylinder inspection, caliper rebuild, and full fluid flush."
+  price_min: 1200
+  price_max: 4500
+  duration_hours: 1.5
+
+- key: cooling_system_service
+  name: "Cooling system repair & flush"
+  description: "Radiator pressure check, thermostat valve replacement, and organic coolant flush."
+  price_min: 1800
+  price_max: 5500
+  duration_hours: 2.0
+
+- key: ac_cooling_service
+  name: "Car AC gas recharge & leak repair"
+  description: "AC condenser coil cleaning, R134a/R1234yf refrigerant top-up, and compressor oil refill."
+  price_min: 1500
+  price_max: 4000
+  duration_hours: 1.5
+
+- key: ac_compressor_service
+  name: "AC compressor replacement & electricals"
+  description: "Replacement of clutch coil, AC compressor unit, and cabin air filter."
+  price_min: 6000
+  price_max: 18000
+  duration_hours: 3.0
+
+- key: tire_puncture_service
+  name: "Tire puncture repair & inspection"
+  description: "Tubeless tire puncture plugging, bead resealing, and rim inspection."
+  price_min: 300
+  price_max: 900
+  duration_hours: 0.5
+
+- key: wheel_alignment_service
+  name: "Wheel alignment & balancing"
+  description: "Computerized 3D laser wheel alignment, tire rotation, and dynamic balancing."
+  price_min: 800
+  price_max: 2000
+  duration_hours: 1.0
+
+- key: suspension_service
+  name: "Suspension bushing & shock absorber service"
+  description: "Strut replacement, control arm ball joints, stabilizer link rods, and bushings."
+  price_min: 3500
+  price_max: 14000
+  duration_hours: 3.5
+
+- key: steering_rack_service
+  name: "Steering rack & power steering repair"
+  description: "Steering rack overhaul, tie-rod end replacement, and power steering fluid bleeding."
+  price_min: 2800
+  price_max: 11000
+  duration_hours: 3.0
+
+- key: fuel_system_service
+  name: "Fuel injector & fuel pump service"
+  description: "Ultrasonic fuel injector cleaning, fuel filter replacement, and fuel rail pressure test."
+  price_min: 1800
+  price_max: 6500
+  duration_hours: 2.0
+
+- key: engine_oil_service
+  name: "Engine oil service & leak repair"
+  description: "Engine oil change with synthetic grade, oil filter replacement, and sump gasket sealing."
+  price_min: 2200
+  price_max: 6000
+  duration_hours: 1.0
+
+- key: engine_head_gasket_service
+  name: "Cylinder head gasket overhaul"
+  description: "Engine cylinder head machining, multi-layer steel head gasket replacement, and timing reset."
+  price_min: 8000
+  price_max: 24000
+  duration_hours: 6.0
+
+- key: clutch_overhaul_service
+  name: "Clutch plate & flywheel replacement"
+  description: "Clutch pressure plate, release bearing, friction disc replacement, and gear cable adjustment."
+  price_min: 4500
+  price_max: 13500
+  duration_hours: 4.0
+
+- key: transmission_service
+  name: "Manual & automatic gearbox service"
+  description: "Gear selector linkage lubrication, sync ring inspection, and transmission fluid replacement."
+  price_min: 2500
+  price_max: 9000
+  duration_hours: 2.5
+
+- key: exhaust_emission_service
+  name: "Exhaust manifold & catalytic converter repair"
+  description: "Exhaust leak sealing, O2 oxygen sensor replacement, and catalytic converter decarb."
+  price_min: 2000
+  price_max: 12000
+  duration_hours: 2.0
+
+- key: electrical_diagnostic_service
+  name: "OBD-II diagnostic scan & wiring repair"
+  description: "Full electronic control module diagnostic scan, sensor reset, and wiring harness repair."
+  price_min: 800
+  price_max: 3500
+  duration_hours: 1.0
+
+- key: ignition_tuneup_service
+  name: "Ignition system tune-up & spark plugs"
+  description: "Iridium spark plug set replacement, ignition coil pack testing, and throttle body clean."
+  price_min: 1600
+  price_max: 5200
+  duration_hours: 1.5
+
+- key: headlight_lighting_service
+  name: "Headlight bulb & relay replacement"
+  description: "Halogen/LED bulb upgrade, headlight relay wiring harness install, and beam alignment."
+  price_min: 600
+  price_max: 2500
+  duration_hours: 0.5
